@@ -2,8 +2,8 @@
 // Replace 'your_gemini_api_key_here' with your actual API key
 
 export const GEMINI_CONFIG = {
-  API_KEY: 'your_gemini_api_key_here', // Replace this with your actual API key
-  MODEL: 'gemini-1.5-flash',
+  API_KEY: 'AIzaSyBuH-UZPOhn49CGd6-MgWcoYqRV6_tr2hs', 
+  MODEL: 'gemini-2.0-flash',
   MAX_TOKENS: 1000,
   TEMPERATURE: 0.7,
   SAFETY_SETTINGS: [

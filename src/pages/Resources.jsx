@@ -1,7 +1,7 @@
-import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Wind, Sparkles, BookOpen, Phone, Play, Pause, RotateCcw, ChevronDown, ChevronUp } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Button } from "../components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import { Wind, Sparkles, BookOpen, Phone, Play, Pause, RotateCcw, ChevronDown, ChevronUp, Heart } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const helplines = [
@@ -101,7 +101,7 @@ export default function Resources() {
   const [breathingCount, setBreathingCount] = useState(4);
   const [expandedFaq, setExpandedFaq] = useState(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     let interval;
     if (breathingActive) {
       interval = setInterval(() => {
@@ -127,17 +127,18 @@ export default function Resources() {
   const resetBreathing = () => { setBreathingActive(false); setBreathingPhase('inhale'); setBreathingCount(4); };
 
   return (
-    <div className="max-w-6xl mx-auto p-4 space-y-8">
-      <div className="text-center">
-        <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
-          Wellness Resources
-        </h1>
-        <p className="text-gray-600 text-lg">Tools and support to help you on your mental wellness journey</p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-100">
+      <div className="max-w-6xl mx-auto p-4 space-y-8">
+        <div className="text-center">
+          <h1 className="text-3xl md:text-4xl font-display font-bold gradient-text mb-2">
+            Wellness Resources
+          </h1>
+          <p className="text-secondary-600 text-lg">Tools and support to help you on your mental wellness journey</p>
+        </div>
 
       <div className="grid lg:grid-cols-2 gap-8">
         {/* Crisis Helplines */}
-        <Card className="bg-white/60 backdrop-blur-sm border-white/30">
+        <Card className="glass-card">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-red-600">
               <Phone className="w-5 h-5" />
@@ -145,7 +146,7 @@ export default function Resources() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <p className="text-sm text-gray-600 mb-4">If you're in crisis or need immediate support, these helplines are here for you 24/7.</p>
+            <p className="text-sm text-secondary-600 mb-4">If you're in crisis or need immediate support, these helplines are here for you 24/7.</p>
             {helplines.map((helpline, index) => (
               <motion.div key={helpline.name} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.1 }}>
                 <a
@@ -166,12 +167,12 @@ export default function Resources() {
         </Card>
 
         {/* Breathing Exercise */}
-        <Card className="bg-white/60 backdrop-blur-sm border-white/30">
+        <Card className="glass-card">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-blue-600"><Wind className="w-5 h-5" /> 4-7-8 Breathing Exercise</CardTitle>
           </CardHeader>
           <CardContent className="text-center">
-            <p className="text-sm text-gray-600 mb-6">A simple breathing technique to help reduce anxiety and promote calm</p>
+            <p className="text-sm text-secondary-600 mb-6">A simple breathing technique to help reduce anxiety and promote calm</p>
             <div className="flex flex-col items-center space-y-6">
               <div className="relative">
                 <motion.div animate={{ scale: breathingActive ? (breathingPhase === 'inhale' ? 1.3 : breathingPhase === 'hold' ? 1.3 : 1) : 1 }} transition={{ duration: 1, ease: "easeInOut" }} className="w-32 h-32 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full flex items-center justify-center text-white shadow-lg">
@@ -182,7 +183,7 @@ export default function Resources() {
                 </motion.div>
               </div>
 
-              <div className="text-sm text-gray-600 max-w-md">
+              <div className="text-sm text-secondary-600 max-w-md">
                 <p className="mb-2"><strong>Inhale</strong> for 4 seconds, <strong>hold</strong> for 7 seconds, <strong>exhale</strong> for 8 seconds</p>
                 <p>This pattern helps activate your body's relaxation response.</p>
               </div>
@@ -192,68 +193,69 @@ export default function Resources() {
                   {breathingActive ? <Pause className="w-4 h-4 mr-2" /> : <Play className="w-4 h-4 mr-2" />}
                   {breathingActive ? 'Pause' : 'Start'}
                 </Button>
-                <Button variant="outline" onClick={resetBreathing}><RotateCcw className="w-4 h-4 mr-2" />Reset</Button>
+                <Button onClick={resetBreathing} className="btn-secondary"><RotateCcw className="w-4 h-4 mr-2" />Reset</Button>
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Affirmations */}
-      <Card className="bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-purple-600"><Sparkles className="w-5 h-5" /> Daily Affirmations</CardTitle>
-        </CardHeader>
-        <CardContent className="text-center">
-          <motion.div key={currentAffirmation} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
-            <p className="text-xl text-gray-700 leading-relaxed font-medium">{affirmations[currentAffirmation]}</p>
-          </motion.div>
-          <Button onClick={nextAffirmation} variant="outline" className="bg-white/60 backdrop-blur-sm"><Sparkles className="w-4 h-4 mr-2" />Show Another Affirmation</Button>
-        </CardContent>
-      </Card>
+             {/* Affirmations */}
+       <Card className="glass-card">
+         <CardHeader>
+           <CardTitle className="flex items-center gap-2 text-purple-600"><Sparkles className="w-5 h-5" /> Daily Affirmations</CardTitle>
+         </CardHeader>
+         <CardContent className="text-center">
+           <motion.div key={currentAffirmation} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
+             <p className="text-xl text-secondary-700 leading-relaxed font-medium">{affirmations[currentAffirmation]}</p>
+           </motion.div>
+           <Button onClick={nextAffirmation} className="btn-secondary"><Sparkles className="w-4 h-4 mr-2" />Show Another Affirmation</Button>
+         </CardContent>
+       </Card>
 
-      {/* Study Stress Tips */}
-      <Card className="bg-white/60 backdrop-blur-sm border-white/30">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-green-600"><BookOpen className="w-5 h-5" /> Study Stress Management Tips</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid md:grid-cols-2 gap-4">
-            {studyTips.map((tip, index) => (
-              <motion.div key={index} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.1 }} className="p-4 bg-white/60 backdrop-blur-sm rounded-xl border border-white/30">
-                <h3 className="font-bold text-gray-800 mb-2">{tip.title}</h3>
-                <p className="text-sm text-gray-600">{tip.description}</p>
-              </motion.div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+             {/* Study Stress Tips */}
+       <Card className="glass-card">
+         <CardHeader>
+           <CardTitle className="flex items-center gap-2 text-green-600"><BookOpen className="w-5 h-5" /> Study Stress Management Tips</CardTitle>
+         </CardHeader>
+         <CardContent>
+           <div className="grid md:grid-cols-2 gap-4">
+             {studyTips.map((tip, index) => (
+               <motion.div key={index} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.1 }} className="p-4 glass-card rounded-xl">
+                 <h3 className="font-bold text-secondary-800 mb-2">{tip.title}</h3>
+                 <p className="text-sm text-secondary-600">{tip.description}</p>
+               </motion.div>
+             ))}
+           </div>
+         </CardContent>
+       </Card>
 
-      {/* FAQ Section */}
-      <Card className="bg-white/60 backdrop-blur-sm border-white/30">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2"><Heart className="w-5 h-5 text-pink-500" /> Frequently Asked Questions</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {faqs.map((faq, index) => (
-              <motion.div key={index} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: index * 0.1 }} className="border border-white/30 rounded-xl bg-white/40 backdrop-blur-sm overflow-hidden">
-                <button onClick={() => setExpandedFaq(expandedFaq === index ? null : index)} className="w-full p-4 text-left flex justify-between items-center hover:bg-white/20 transition-colors">
-                  <span className="font-medium text-gray-800">{faq.question}</span>
-                  {expandedFaq === index ? <ChevronUp className="w-4 h-4 text-gray-600" /> : <ChevronDown className="w-4 h-4 text-gray-600" />}
-                </button>
-                <AnimatePresence>
-                  {expandedFaq === index && (
-                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="px-4 pb-4">
-                      <p className="text-gray-600 leading-relaxed">{faq.answer}</p>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </motion.div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+             {/* FAQ Section */}
+       <Card className="glass-card">
+         <CardHeader>
+           <CardTitle className="flex items-center gap-2"><Heart className="w-5 h-5 text-pink-500" /> Frequently Asked Questions</CardTitle>
+         </CardHeader>
+         <CardContent>
+           <div className="space-y-3">
+             {faqs.map((faq, index) => (
+               <motion.div key={index} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: index * 0.1 }} className="glass-card rounded-xl overflow-hidden">
+                 <button onClick={() => setExpandedFaq(expandedFaq === index ? null : index)} className="w-full p-4 text-left flex justify-between items-center hover:bg-white/20 transition-colors">
+                   <span className="font-medium text-secondary-800">{faq.question}</span>
+                   {expandedFaq === index ? <ChevronUp className="w-4 h-4 text-secondary-600" /> : <ChevronDown className="w-4 h-4 text-secondary-600" />}
+                 </button>
+                 <AnimatePresence>
+                   {expandedFaq === index && (
+                     <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="px-4 pb-4">
+                       <p className="text-secondary-600 leading-relaxed">{faq.answer}</p>
+                     </motion.div>
+                   )}
+                 </AnimatePresence>
+               </motion.div>
+             ))}
+           </div>
+         </CardContent>
+       </Card>
+      </div>
     </div>
   );
 }

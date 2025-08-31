@@ -3,8 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Calendar, TrendingUp, BarChart3, Plus, CheckCircle, AlertCircle } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts'
 import { format, startOfWeek, endOfWeek, eachDayOfInterval, isSameDay, subWeeks } from 'date-fns'
+import { useLanguage } from '../contexts/LanguageContext'
 
 const MoodTracker = () => {
+  const { t } = useLanguage()
   const [selectedMood, setSelectedMood] = useState(null)
   const [moodNote, setMoodNote] = useState('')
   const [moodEntries, setMoodEntries] = useState([])
@@ -25,7 +27,7 @@ const MoodTracker = () => {
       suggestions: ["Consider talking to someone you trust", "Try gentle breathing exercises", "Remember that this feeling will pass"],
       resources: [
         { text: "Chat with AI Support", link: "/chat" },
-        { text: "Book Therapy Session", link: "/therapy-booking" },
+        { text: "Book Therapy", link: "/therapy-booking" },
         { text: "Crisis Resources", link: "/resources" }
       ]
     },
@@ -167,10 +169,10 @@ const MoodTracker = () => {
           className="text-center py-8"
         >
           <h1 className="text-3xl lg:text-4xl font-display font-bold gradient-text mb-2">
-            Mood Tracker
+            {t('moodTracker.title')}
           </h1>
           <p className="text-secondary-600">
-            Track your daily emotions and discover patterns in your mental wellness journey
+            {t('moodTracker.subtitle')}
           </p>
         </motion.div>
 
@@ -184,7 +186,7 @@ const MoodTracker = () => {
               className="fixed top-24 right-4 bg-green-500 text-white px-6 py-3 rounded-xl shadow-lg z-50 flex items-center space-x-2"
             >
               <CheckCircle className="w-5 h-5" />
-              <span>Mood saved successfully!</span>
+              <span>{t('moodTracker.moodSavedSuccess')}</span>
             </motion.div>
           )}
         </AnimatePresence>
@@ -199,12 +201,12 @@ const MoodTracker = () => {
             >
               <h2 className="text-xl font-semibold text-secondary-800 mb-4 flex items-center">
                 <Plus className="w-5 h-5 mr-2 text-primary-600" />
-                Log Today's Mood
+                {t('moodTracker.logTodayMood')}
               </h2>
 
               {/* Mood Selection */}
               <div className="space-y-4 mb-6">
-                <p className="text-sm text-secondary-600 mb-3">How are you feeling right now?</p>
+                <p className="text-sm text-secondary-600 mb-3">{t('moodTracker.howAreYouFeeling')}</p>
                 <div className="grid grid-cols-5 gap-2">
                   {moods.map((mood) => (
                     <button
@@ -226,12 +228,12 @@ const MoodTracker = () => {
               {/* Mood Note */}
               <div className="mb-6">
                 <label className="block text-sm font-medium text-secondary-700 mb-2">
-                  Add a note (optional)
+                  {t('moodTracker.addNote')}
                 </label>
                 <textarea
                   value={moodNote}
                   onChange={(e) => setMoodNote(e.target.value)}
-                  placeholder="What's contributing to this mood? Any thoughts you'd like to capture?"
+                  placeholder={t('moodTracker.notePlaceholder')}
                   className="w-full px-3 py-2 border border-secondary-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
                   rows="3"
                 />
@@ -243,7 +245,7 @@ const MoodTracker = () => {
                 disabled={!selectedMood}
                 className="w-full btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Save Mood Entry
+                {t('moodTracker.saveMood')}
               </button>
 
               {/* Today's Insights */}
@@ -289,7 +291,7 @@ const MoodTracker = () => {
               >
                 <TrendingUp className="w-8 h-8 text-primary-500 mx-auto mb-2" />
                 <div className="text-2xl font-bold text-secondary-800">{getAverageMood()}</div>
-                <div className="text-sm text-secondary-600">Average Mood</div>
+                <div className="text-sm text-secondary-600">{t('moodTracker.averageMood')}</div>
               </motion.div>
 
               <motion.div
@@ -300,7 +302,7 @@ const MoodTracker = () => {
               >
                 <Calendar className="w-8 h-8 text-accent-500 mx-auto mb-2" />
                 <div className="text-2xl font-bold text-secondary-800">{getMoodStreak()}</div>
-                <div className="text-sm text-secondary-600">Day Streak</div>
+                <div className="text-sm text-secondary-600">{t('moodTracker.dayStreak')}</div>
               </motion.div>
 
               <motion.div
@@ -311,7 +313,7 @@ const MoodTracker = () => {
               >
                 <BarChart3 className="w-8 h-8 text-yellow-500 mx-auto mb-2" />
                 <div className="text-2xl font-bold text-secondary-800">{moodEntries.length}</div>
-                <div className="text-sm text-secondary-600">Total Entries</div>
+                <div className="text-sm text-secondary-600">{t('moodTracker.totalEntries')}</div>
               </motion.div>
             </div>
 
@@ -322,7 +324,7 @@ const MoodTracker = () => {
               className="floating-card"
             >
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-semibold text-secondary-800">This Week</h2>
+                <h2 className="text-xl font-semibold text-secondary-800">{t('moodTracker.thisWeek')}</h2>
                 <div className="flex space-x-2">
                   <button
                     onClick={() => setCurrentWeek(subWeeks(currentWeek, 1))}
@@ -334,7 +336,7 @@ const MoodTracker = () => {
                     onClick={() => setCurrentWeek(new Date())}
                     className="px-3 py-1 text-sm bg-primary-100 text-primary-700 rounded-lg hover:bg-primary-200 transition-all duration-200"
                   >
-                    Today
+                    {t('moodTracker.today')}
                   </button>
                   <button
                     onClick={() => setCurrentWeek(subWeeks(currentWeek, -1))}
@@ -382,7 +384,7 @@ const MoodTracker = () => {
                 animate={{ opacity: 1, y: 0 }}
                 className="floating-card"
               >
-                <h2 className="text-xl font-semibold text-secondary-800 mb-4">Mood Trends</h2>
+                <h2 className="text-xl font-semibold text-secondary-800 mb-4">{t('moodTracker.moodTrends')}</h2>
                 <div className="h-64">
                   <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={chartData}>

@@ -2,12 +2,16 @@ import React, { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Send, Bot, User, AlertTriangle, Phone, Heart, Smile, Frown, Meh, Angry, Zap, Sparkles, MessageCircle, Lightbulb, BookOpen, Music, Users, Calendar } from 'lucide-react'
 import { generateMentalHealthResponse, testGeminiConnection } from '../services/geminiService.js'
+import { useLanguage } from '../contexts/LanguageContext'
+import { translateToEnglish, translateFromEnglish } from '../utils/translationService'
 
 const Chat = () => {
+  const { t, currentLanguage } = useLanguage()
+  
   const [messages, setMessages] = useState([
     {
       id: 1,
-      text: "Hello! I'm your Wellspring AI companion. I'm here to listen, support, and help you navigate whatever you're going through. How are you feeling today? 😊",
+      text: t('chat.welcome') || "Hello! I'm your Wellspring AI companion. I'm here to listen, support, and help you navigate whatever you're going through. How are you feeling today? 😊",
       isBot: true,
       timestamp: new Date(),
       emotion: 'warm'
@@ -121,10 +125,10 @@ const Chat = () => {
       title: "Connection & Community",
       color: "from-blue-400 to-indigo-500",
       actions: [
-        { text: "Join Support Community", link: "/community", icon: "👥" },
-        { text: "Find Local Groups", link: "/resources", icon: "📍" },
-        { text: "Book Therapy Session", link: "/therapy-booking", icon: "💬" },
-        { text: "Volunteer Opportunities", link: "/resources", icon: "🤝" }
+        { text: t('chat.suggestions.joinCommunity'), link: "/community", icon: "👥" },
+        { text: t('chat.suggestions.findGroups'), link: "/resources", icon: "📍" },
+        { text: t('chat.suggestions.bookTherapy'), link: "/therapy-booking", icon: "💬" },
+        { text: t('chat.suggestions.volunteer'), link: "/resources", icon: "🤝" }
       ]
     },
     happy: {
@@ -291,14 +295,17 @@ const Chat = () => {
   const sendMessage = async (text = inputValue, mood = null) => {
     if (!text.trim()) return
 
-    const detectedMood = mood || detectMood(text)
+    // Translate user input to English if not already in English
+    const translatedText = currentLanguage !== 'en' ? translateToEnglish(text, currentLanguage) : text
+
+    const detectedMood = mood || detectMood(translatedText)
     if (detectedMood) {
       setUserMood(detectedMood)
     }
 
     const newUserMessage = {
       id: messages.length + 1,
-      text: text,
+      text: text, // Keep original text for display
       isBot: false,
       timestamp: new Date(),
       emotion: detectedMood
@@ -316,12 +323,15 @@ const Chat = () => {
     }))
 
     try {
-      const response = await callGeminiAPI(text, conversationContext)
+      const response = await callGeminiAPI(translatedText, conversationContext)
       
       if (response) {
+        // Translate bot response back to user's language if not English
+        const botResponseText = currentLanguage !== 'en' ? translateFromEnglish(response.text, currentLanguage) : response.text
+        
         const newBotMessage = {
           id: messages.length + 2,
-          text: response.text,
+          text: botResponseText,
           isBot: true,
           timestamp: new Date(),
           emotion: response.emotion,
@@ -331,9 +341,11 @@ const Chat = () => {
         setMessages(prev => [...prev, newBotMessage])
       } else {
         // Fallback response
+        const fallbackText = currentLanguage !== 'en' ? translateFromEnglish("I'm here to listen and support you. Thank you for sharing that with me. How can I best help you right now?", currentLanguage) : "I'm here to listen and support you. Thank you for sharing that with me. How can I best help you right now?"
+        
         const fallbackResponse = {
           id: messages.length + 2,
-          text: "I'm here to listen and support you. Thank you for sharing that with me. How can I best help you right now?",
+          text: fallbackText,
           isBot: true,
           timestamp: new Date(),
           emotion: 'supportive'
@@ -398,10 +410,10 @@ const Chat = () => {
           className="text-center py-8"
         >
           <h1 className="text-3xl lg:text-4xl font-display font-bold gradient-text mb-2">
-            Gemini AI Support Chat
+            Let's Talk, I'm Listening
           </h1>
           <p className="text-secondary-600">
-            Your safe space to talk, vent, and get emotionally intelligent support powered by Google Gemini
+            Your safe space to talk, vent, and get emotionally intelligent support
           </p>
           <div className="flex items-center justify-center space-x-2 mt-2">
             <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-gray-400'}`}></div>
@@ -507,7 +519,7 @@ const Chat = () => {
                         <div className="w-2 h-2 bg-secondary-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
                         <div className="w-2 h-2 bg-secondary-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                       </div>
-                      <span className="text-xs text-secondary-500">Thinking...</span>
+                      <span className="text-xs text-secondary-500">{t('chat.thinking')}</span>
                     </div>
                   </div>
                 </div>
@@ -518,7 +530,7 @@ const Chat = () => {
 
           {/* Enhanced Quick Prompts */}
           <div className="px-6 py-4 border-t border-primary-100 bg-primary-25">
-            <p className="text-sm text-secondary-600 mb-3">Quick prompts to get started:</p>
+            <p className="text-sm text-secondary-600 mb-3">{t('chat.suggestions')}:</p>
             <div className="flex flex-wrap gap-2">
               {quickPrompts.map((prompt, index) => (
                 <motion.button
@@ -542,7 +554,7 @@ const Chat = () => {
                 type="text"
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
-                placeholder="Share what's on your mind... I'm here to listen and support you."
+                placeholder={t('chat.placeholder')}
                 className="flex-1 px-4 py-3 border border-secondary-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 disabled={isTyping}
               />

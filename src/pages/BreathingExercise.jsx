@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Play, Pause, RotateCcw, Settings, Volume2, VolumeX, Wind } from 'lucide-react'
+import { useLanguage } from '../contexts/LanguageContext'
 
 const BreathingExercises = () => {
+  const { t } = useLanguage()
   const [selectedExercise, setSelectedExercise] = useState(null)
   const [isActive, setIsActive] = useState(false)
   const [currentPhase, setCurrentPhase] = useState('prepare') // prepare, inhale, hold, exhale, pause
@@ -198,12 +200,12 @@ const BreathingExercises = () => {
 
   const getPhaseInstruction = () => {
     switch (currentPhase) {
-      case 'prepare': return 'Get ready...'
-      case 'inhale': return 'Breathe In'
-      case 'hold': return 'Hold'
-      case 'exhale': return 'Breathe Out'
-      case 'pause': return 'Pause'
-      default: return 'Breathe'
+      case 'prepare': return t('breathing.getReady')
+      case 'inhale': return t('breathing.inhale')
+      case 'hold': return t('breathing.hold')
+      case 'exhale': return t('breathing.exhale')
+      case 'pause': return t('breathing.pause')
+      default: return t('breathing.breathe')
     }
   }
 
@@ -227,10 +229,10 @@ const BreathingExercises = () => {
           className="text-center py-8"
         >
           <h1 className="text-3xl lg:text-4xl font-display font-bold gradient-text mb-2">
-            Breathing Exercises
+            {t('breathing.title')}
           </h1>
           <p className="text-secondary-600">
-            Harness the power of breath to reduce stress, increase focus, and improve well-being
+            {t('breathing.subtitle')}
           </p>
         </motion.div>
 
@@ -285,7 +287,7 @@ const BreathingExercises = () => {
                     onClick={() => startExercise(exercise)}
                     className="w-full btn-primary"
                   >
-                    Start Exercise
+                    {t('breathing.start')}
                   </button>
                 </motion.div>
               ))}

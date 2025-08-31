@@ -1,18 +1,42 @@
-import { GoogleGenerativeAI } from '@google/generative-ai'
 import { GEMINI_CONFIG, MENTAL_HEALTH_PROMPT, CRISIS_KEYWORDS, CRISIS_RESPONSE } from '../config/gemini.js'
 
-// Initialize Gemini AI
-const genAI = new GoogleGenerativeAI(GEMINI_CONFIG.API_KEY)
+// Direct API call to Gemini
+const callGeminiAPI = async (prompt) => {
+  try {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_CONFIG.MODEL}:generateContent?key=${GEMINI_CONFIG.API_KEY}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        contents: [
+          {
+            parts: [
+              {
+                text: prompt
+              }
+            ]
+          }
+        ],
+        generationConfig: {
+          maxOutputTokens: GEMINI_CONFIG.MAX_TOKENS,
+          temperature: GEMINI_CONFIG.TEMPERATURE,
+        },
+        safetySettings: GEMINI_CONFIG.SAFETY_SETTINGS
+      })
+    })
 
-// Get the model
-const model = genAI.getGenerativeModel({ 
-  model: GEMINI_CONFIG.MODEL,
-  generationConfig: {
-    maxOutputTokens: GEMINI_CONFIG.MAX_TOKENS,
-    temperature: GEMINI_CONFIG.TEMPERATURE,
-  },
-  safetySettings: GEMINI_CONFIG.SAFETY_SETTINGS
-})
+    if (!response.ok) {
+      throw new Error(`API call failed: ${response.status}`)
+    }
+
+    const data = await response.json()
+    return data.candidates[0].content.parts[0].text
+  } catch (error) {
+    console.error('Gemini API Error:', error)
+    throw error
+  }
+}
 
 // Check for crisis keywords
 export const checkForCrisis = (text) => {
@@ -60,16 +84,9 @@ export const generateMentalHealthResponse = async (userMessage, context = {}, mo
       { role: 'user', content: userMessage }
     ]
 
-    // Generate response
-    const result = await model.generateContent({
-      contents: fullConversation.map(msg => ({
-        role: msg.role,
-        parts: [{ text: msg.content }]
-      }))
-    })
-
-    const response = await result.response
-    const responseText = response.text()
+    // Generate response using direct API call
+    const fullPrompt = `${systemPrompt}\n\nUser: ${userMessage}\n\nAssistant:`
+    const responseText = await callGeminiAPI(fullPrompt)
 
     // Analyze response for emotion
     const emotion = analyzeResponseEmotion(responseText, mood)
@@ -184,9 +201,8 @@ const getSuggestionsForMood = (mood, emotion) => {
 // Test API connection
 export const testGeminiConnection = async () => {
   try {
-    const result = await model.generateContent('Hello, this is a test message.')
-    const response = await result.response
-    return response.text() ? true : false
+    const response = await callGeminiAPI('Hello, this is a test message.')
+    return response ? true : false
   } catch (error) {
     console.error('Gemini connection test failed:', error)
     return false

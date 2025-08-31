@@ -140,4 +140,4 @@ Once integration is working:
 
 ---
 
-**Remember:** Keep your API key secure and never share it publicly!
+**Remember:** Keep your API key secure and never share it publicly!curl 

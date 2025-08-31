@@ -1,8 +1,10 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Play, Pause, Volume2, VolumeX, SkipForward, SkipBack, Shuffle, Repeat, Heart, Clock, Waves, Headphones } from 'lucide-react'
+import { useLanguage } from '../contexts/LanguageContext'
 
 const SoundTherapy = () => {
+  const { t } = useLanguage()
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentTrack, setCurrentTrack] = useState(0)
   const [currentPlaylist, setCurrentPlaylist] = useState(0)
@@ -15,7 +17,9 @@ const SoundTherapy = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
   const audioRef = useRef(null)
+  const [audioReady, setAudioReady] = useState(false)
 
+  // Using base64 encoded audio data or local audio files for better reliability
   const playlists = [
     {
       id: 1,
@@ -23,10 +27,38 @@ const SoundTherapy = () => {
       description: "Gentle sounds for concentration and productivity",
       color: "from-blue-400 to-cyan-500",
       tracks: [
-        { id: 1, name: "Peaceful Rain", artist: "Nature Sounds", duration: "10:00", url: "https://www2.cs.uic.edu/~i101/SoundFiles/BabyElephantWalk60.wav" },
-        { id: 2, name: "Ocean Waves", artist: "Relaxing Nature", duration: "15:30", url: "https://www2.cs.uic.edu/~i101/SoundFiles/ImperialMarch60.wav" },
-        { id: 3, name: "Forest Birds", artist: "Natural Harmony", duration: "12:15", url: "https://www2.cs.uic.edu/~i101/SoundFiles/StarWars60.wav" },
-        { id: 4, name: "Gentle Stream", artist: "Water Sounds", duration: "20:00", url: "https://www2.cs.uic.edu/~i101/SoundFiles/gettysburg10.wav" }
+        { 
+          id: 1, 
+          name: "Peaceful Rain", 
+          artist: "Nature Sounds", 
+          duration: "10:00", 
+          url: "/audio/rain.mp3",
+          fallback: "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT"
+        },
+        { 
+          id: 2, 
+          name: "Ocean Waves", 
+          artist: "Relaxing Nature", 
+          duration: "15:30", 
+          url: "/audio/ocean.mp3",
+          fallback: "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT"
+        },
+        { 
+          id: 3, 
+          name: "Forest Birds", 
+          artist: "Natural Harmony", 
+          duration: "12:15", 
+          url: "/audio/birds.mp3",
+          fallback: "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT"
+        },
+        { 
+          id: 4, 
+          name: "Gentle Stream", 
+          artist: "Water Sounds", 
+          duration: "20:00", 
+          url: "/audio/stream.mp3",
+          fallback: "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT"
+        }
       ]
     },
     {
@@ -35,10 +67,38 @@ const SoundTherapy = () => {
       description: "Soothing melodies for stress relief and unwinding",
       color: "from-purple-400 to-indigo-500",
       tracks: [
-        { id: 5, name: "Tibetan Bowls", artist: "Meditation Masters", duration: "18:45", url: "https://www2.cs.uic.edu/~i101/SoundFiles/BabyElephantWalk60.wav" },
-        { id: 6, name: "Soft Piano", artist: "Peaceful Melodies", duration: "14:20", url: "https://www2.cs.uic.edu/~i101/SoundFiles/ImperialMarch60.wav" },
-        { id: 7, name: "Wind Chimes", artist: "Zen Garden", duration: "16:30", url: "https://www2.cs.uic.edu/~i101/SoundFiles/StarWars60.wav" },
-        { id: 8, name: "Whale Songs", artist: "Ocean Deep", duration: "22:10", url: "https://www2.cs.uic.edu/~i101/SoundFiles/gettysburg10.wav" }
+        { 
+          id: 5, 
+          name: "Tibetan Bowls", 
+          artist: "Meditation Masters", 
+          duration: "18:45", 
+          url: "/audio/tibetan-bowls.mp3",
+          fallback: "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT"
+        },
+        { 
+          id: 6, 
+          name: "Soft Piano", 
+          artist: "Peaceful Melodies", 
+          duration: "14:20", 
+          url: "/audio/piano.mp3",
+          fallback: "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT"
+        },
+        { 
+          id: 7, 
+          name: "Wind Chimes", 
+          artist: "Zen Garden", 
+          duration: "16:30", 
+          url: "/audio/wind-chimes.mp3",
+          fallback: "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT"
+        },
+        { 
+          id: 8, 
+          name: "Whale Songs", 
+          artist: "Ocean Deep", 
+          duration: "22:10", 
+          url: "/audio/whale.mp3",
+          fallback: "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT"
+        }
       ]
     },
     {
@@ -47,10 +107,38 @@ const SoundTherapy = () => {
       description: "Gentle sounds to help you fall asleep peacefully",
       color: "from-indigo-400 to-purple-500",
       tracks: [
-        { id: 9, name: "Night Rain", artist: "Sleep Sounds", duration: "45:00", url: "https://www2.cs.uic.edu/~i101/SoundFiles/BabyElephantWalk60.wav" },
-        { id: 10, name: "Lullaby Hum", artist: "Dream Therapy", duration: "30:15", url: "https://www2.cs.uic.edu/~i101/SoundFiles/ImperialMarch60.wav" },
-        { id: 11, name: "White Noise", artist: "Sound Masking", duration: "60:00", url: "https://www2.cs.uic.edu/~i101/SoundFiles/StarWars60.wav" },
-        { id: 12, name: "Cricket Symphony", artist: "Night Nature", duration: "35:30", url: "https://www2.cs.uic.edu/~i101/SoundFiles/gettysburg10.wav" }
+        { 
+          id: 9, 
+          name: "Night Rain", 
+          artist: "Sleep Sounds", 
+          duration: "45:00", 
+          url: "/audio/night-rain.mp3",
+          fallback: "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT"
+        },
+        { 
+          id: 10, 
+          name: "Lullaby Hum", 
+          artist: "Dream Therapy", 
+          duration: "30:15", 
+          url: "/audio/lullaby.mp3",
+          fallback: "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT"
+        },
+        { 
+          id: 11, 
+          name: "White Noise", 
+          artist: "Sound Masking", 
+          duration: "60:00", 
+          url: "/audio/white-noise.mp3",
+          fallback: "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT"
+        },
+        { 
+          id: 12, 
+          name: "Cricket Symphony", 
+          artist: "Night Nature", 
+          duration: "35:30", 
+          url: "/audio/crickets.mp3",
+          fallback: "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT"
+        }
       ]
     },
     {
@@ -59,10 +147,38 @@ const SoundTherapy = () => {
       description: "Uplifting sounds to energize and motivate",
       color: "from-green-400 to-teal-500",
       tracks: [
-        { id: 13, name: "Morning Birds", artist: "Dawn Chorus", duration: "12:45", url: "https://www2.cs.uic.edu/~i101/SoundFiles/BabyElephantWalk60.wav" },
-        { id: 14, name: "Upbeat Nature", artist: "Energy Flow", duration: "8:30", url: "https://www2.cs.uic.edu/~i101/SoundFiles/ImperialMarch60.wav" },
-        { id: 15, name: "Flowing Water", artist: "River Rush", duration: "15:20", url: "https://www2.cs.uic.edu/~i101/SoundFiles/StarWars60.wav" },
-        { id: 16, name: "Wind Through Trees", artist: "Forest Energy", duration: "11:10", url: "https://www2.cs.uic.edu/~i101/SoundFiles/gettysburg10.wav" }
+        { 
+          id: 13, 
+          name: "Morning Birds", 
+          artist: "Dawn Chorus", 
+          duration: "12:45", 
+          url: "/audio/morning-birds.mp3",
+          fallback: "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT"
+        },
+        { 
+          id: 14, 
+          name: "Upbeat Nature", 
+          artist: "Energy Flow", 
+          duration: "8:30", 
+          url: "/audio/upbeat-nature.mp3",
+          fallback: "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT"
+        },
+        { 
+          id: 15, 
+          name: "Flowing Water", 
+          artist: "River Rush", 
+          duration: "15:20", 
+          url: "/audio/flowing-water.mp3",
+          fallback: "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT"
+        },
+        { 
+          id: 16, 
+          name: "Wind Through Trees", 
+          artist: "Forest Energy", 
+          duration: "11:10", 
+          url: "/audio/wind-trees.mp3",
+          fallback: "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT"
+        }
       ]
     },
     {
@@ -71,10 +187,38 @@ const SoundTherapy = () => {
       description: "Calming frequencies designed to reduce anxiety",
       color: "from-pink-400 to-rose-500",
       tracks: [
-        { id: 17, name: "432Hz Healing", artist: "Frequency Healing", duration: "25:00", url: "https://www2.cs.uic.edu/~i101/SoundFiles/BabyElephantWalk60.wav" },
-        { id: 18, name: "Breath Sync", artist: "Mindful Audio", duration: "10:30", url: "https://www2.cs.uic.edu/~i101/SoundFiles/ImperialMarch60.wav" },
-        { id: 19, name: "Calm Waves", artist: "Peace Sounds", duration: "18:15", url: "https://www2.cs.uic.edu/~i101/SoundFiles/StarWars60.wav" },
-        { id: 20, name: "Heart Coherence", artist: "Balance Tones", duration: "20:45", url: "https://www2.cs.uic.edu/~i101/SoundFiles/gettysburg10.wav" }
+        { 
+          id: 17, 
+          name: "432Hz Healing", 
+          artist: "Frequency Healing", 
+          duration: "25:00", 
+          url: "/audio/432hz.mp3",
+          fallback: "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT"
+        },
+        { 
+          id: 18, 
+          name: "Breath Sync", 
+          artist: "Mindful Audio", 
+          duration: "10:30", 
+          url: "/audio/breath-sync.mp3",
+          fallback: "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT"
+        },
+        { 
+          id: 19, 
+          name: "Calm Waves", 
+          artist: "Peace Sounds", 
+          duration: "18:15", 
+          url: "/audio/calm-waves.mp3",
+          fallback: "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT"
+        },
+        { 
+          id: 20, 
+          name: "Heart Coherence", 
+          artist: "Balance Tones", 
+          duration: "20:45", 
+          url: "/audio/heart-coherence.mp3",
+          fallback: "data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT"
+        }
       ]
     }
   ]
@@ -82,84 +226,122 @@ const SoundTherapy = () => {
   const currentPlaylistData = playlists[currentPlaylist]
   const currentTrackData = currentPlaylistData.tracks[currentTrack]
 
-  useEffect(() => {
-    const audio = audioRef.current
-    if (audio) {
-      const updateTime = () => setCurrentTime(audio.currentTime)
-      const updateDuration = () => setDuration(audio.duration)
-      const handleError = (e) => {
-        console.error('Audio error:', e)
-        setIsPlaying(false)
-        setIsLoading(false)
-        setError('Failed to load audio file')
-      }
-      
-      const handleLoadStart = () => {
-        setIsLoading(true)
-        setError(null)
-      }
-      
-      const handleCanPlay = () => {
-        setIsLoading(false)
-        setError(null)
-        if (audioRef.current) {
-          audioRef.current.volume = volume
-        }
-      }
-      
-      audio.addEventListener('timeupdate', updateTime)
-      audio.addEventListener('loadedmetadata', updateDuration)
-      audio.addEventListener('ended', handleTrackEnd)
-      audio.addEventListener('error', handleError)
-      audio.addEventListener('loadstart', handleLoadStart)
-      audio.addEventListener('canplay', handleCanPlay)
-
-      return () => {
-        audio.removeEventListener('timeupdate', updateTime)
-        audio.removeEventListener('loadedmetadata', updateDuration)
-        audio.removeEventListener('ended', handleTrackEnd)
-        audio.removeEventListener('error', handleError)
-        audio.removeEventListener('loadstart', handleLoadStart)
-        audio.removeEventListener('canplay', handleCanPlay)
-      }
+  // Memoized event handlers to prevent unnecessary re-renders
+  const updateTime = useCallback(() => {
+    if (audioRef.current) {
+      setCurrentTime(audioRef.current.currentTime)
     }
-  }, [currentTrack, currentPlaylist])
+  }, [])
 
-  // Handle volume changes
-  useEffect(() => {
-    const audio = audioRef.current
-    if (audio) {
-      audio.volume = volume
+  const updateDuration = useCallback(() => {
+    if (audioRef.current) {
+      setDuration(audioRef.current.duration)
     }
-  }, [volume])
+  }, [])
 
-  const togglePlay = () => {
-    const audio = audioRef.current
-    if (audio) {
-      if (isPlaying) {
-        audio.pause()
-        setIsPlaying(false)
-      } else {
-        setIsLoading(true)
-        audio.play().catch(error => {
-          console.error('Error playing audio:', error)
-          setIsPlaying(false)
-          setIsLoading(false)
-          setError('Failed to play audio')
-        })
-      }
-    }
-  }
-
-  const handleTrackEnd = () => {
+  const handleTrackEnd = useCallback(() => {
     if (repeatMode === 'one') {
-      audioRef.current.play()
+      audioRef.current?.play()
     } else {
       nextTrack()
     }
-  }
+  }, [repeatMode])
 
-  const nextTrack = () => {
+  const handleError = useCallback((e) => {
+    console.error('Audio error:', e)
+    setIsPlaying(false)
+    setIsLoading(false)
+    setError('Failed to load audio file. Trying fallback...')
+    
+    // Try fallback audio
+    if (audioRef.current && currentTrackData.fallback) {
+      audioRef.current.src = currentTrackData.fallback
+      audioRef.current.load()
+      audioRef.current.play().catch(error => {
+        console.error('Fallback audio also failed:', error)
+        setError('Audio file unavailable. Please try another track.')
+      })
+    } else {
+      setError('Audio file unavailable. Please try another track.')
+    }
+  }, [currentTrackData])
+
+  const handleLoadStart = useCallback(() => {
+    setIsLoading(true)
+    setError(null)
+  }, [])
+
+  const handleCanPlay = useCallback(() => {
+    setIsLoading(false)
+    setError(null)
+    if (audioRef.current) {
+      audioRef.current.volume = volume
+    }
+  }, [volume])
+
+  // Set up audio element with proper event listeners
+  useEffect(() => {
+    const audio = audioRef.current
+    if (!audio) return
+
+    // Set initial volume
+    audio.volume = volume
+
+    // Add event listeners
+    audio.addEventListener('timeupdate', updateTime)
+    audio.addEventListener('loadedmetadata', updateDuration)
+    audio.addEventListener('ended', handleTrackEnd)
+    audio.addEventListener('error', handleError)
+    audio.addEventListener('loadstart', handleLoadStart)
+    audio.addEventListener('canplay', handleCanPlay)
+
+    // Cleanup function
+    return () => {
+      audio.removeEventListener('timeupdate', updateTime)
+      audio.removeEventListener('loadedmetadata', updateDuration)
+      audio.removeEventListener('ended', handleTrackEnd)
+      audio.removeEventListener('error', handleError)
+      audio.removeEventListener('loadstart', handleLoadStart)
+      audio.removeEventListener('canplay', handleCanPlay)
+    }
+  }, [updateTime, updateDuration, handleTrackEnd, handleError, handleLoadStart, handleCanPlay, volume])
+
+  // Handle volume changes
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = volume
+    }
+  }, [volume])
+
+  // Load new track when current track changes
+  useEffect(() => {
+    if (audioRef.current && currentTrackData) {
+      setIsLoading(true)
+      setError(null)
+      audioRef.current.src = currentTrackData.url
+      audioRef.current.load()
+    }
+  }, [currentTrack, currentPlaylist])
+
+  const togglePlay = useCallback(() => {
+    const audio = audioRef.current
+    if (!audio) return
+
+    if (isPlaying) {
+      audio.pause()
+      setIsPlaying(false)
+    } else {
+      setIsLoading(true)
+      audio.play().catch(error => {
+        console.error('Error playing audio:', error)
+        setIsPlaying(false)
+        setIsLoading(false)
+        setError('Failed to play audio. Please try again.')
+      })
+    }
+  }, [isPlaying])
+
+  const nextTrack = useCallback(() => {
     const playlist = currentPlaylistData.tracks
     if (currentTrack < playlist.length - 1) {
       setCurrentTrack(currentTrack + 1)
@@ -168,58 +350,44 @@ const SoundTherapy = () => {
     } else {
       setIsPlaying(false)
     }
-  }
+  }, [currentTrack, currentPlaylistData, repeatMode])
 
-  const prevTrack = () => {
+  const prevTrack = useCallback(() => {
     if (currentTrack > 0) {
       setCurrentTrack(currentTrack - 1)
     } else {
       setCurrentTrack(currentPlaylistData.tracks.length - 1)
     }
-  }
+  }, [currentTrack, currentPlaylistData])
 
-  const selectTrack = (playlistIndex, trackIndex) => {
+  const selectTrack = useCallback((playlistIndex, trackIndex) => {
     setCurrentPlaylist(playlistIndex)
     setCurrentTrack(trackIndex)
     setIsPlaying(false)
     setIsLoading(true)
     setError(null)
-    
-    // Load the new audio and play it
-    setTimeout(() => {
-      const audio = audioRef.current
-      if (audio) {
-        audio.load()
-        audio.play().catch(error => {
-          console.error('Error playing audio:', error)
-          setIsPlaying(false)
-          setIsLoading(false)
-          setError('Failed to play audio')
-        })
-      }
-    }, 100)
-  }
+  }, [])
 
-  const toggleFavorite = (trackId) => {
+  const toggleFavorite = useCallback((trackId) => {
     setFavorites(prev => 
       prev.includes(trackId) 
         ? prev.filter(id => id !== trackId)
         : [...prev, trackId]
     )
-  }
+  }, [])
 
-  const formatTime = (seconds) => {
+  const formatTime = useCallback((seconds) => {
     if (isNaN(seconds)) return "0:00"
     const mins = Math.floor(seconds / 60)
     const secs = Math.floor(seconds % 60)
     return `${mins}:${secs.toString().padStart(2, '0')}`
-  }
+  }, [])
 
-  const cycleRepeatMode = () => {
+  const cycleRepeatMode = useCallback(() => {
     const modes = ['none', 'one', 'all']
     const currentIndex = modes.indexOf(repeatMode)
     setRepeatMode(modes[(currentIndex + 1) % modes.length])
-  }
+  }, [repeatMode])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-100">
@@ -231,10 +399,10 @@ const SoundTherapy = () => {
           className="text-center py-8"
         >
           <h1 className="text-3xl lg:text-4xl font-display font-bold gradient-text mb-2">
-            Sound Therapy
+            {t('soundTherapy.title')}
           </h1>
           <p className="text-secondary-600">
-            Immerse yourself in healing sounds designed to calm your mind and restore balance
+            {t('soundTherapy.subtitle')}
           </p>
         </motion.div>
 
@@ -376,12 +544,7 @@ const SoundTherapy = () => {
                     max="1"
                     step="0.1"
                     value={volume}
-                    onChange={(e) => {
-                      setVolume(e.target.value)
-                      if (audioRef.current) {
-                        audioRef.current.volume = e.target.value
-                      }
-                    }}
+                    onChange={(e) => setVolume(parseFloat(e.target.value))}
                     className="w-full h-2 bg-secondary-200 rounded-lg appearance-none cursor-pointer"
                     style={{
                       background: `linear-gradient(to right, #0ea5e9 0%, #0ea5e9 ${volume * 100}%, #e2e8f0 ${volume * 100}%, #e2e8f0 100%)`
@@ -395,8 +558,8 @@ const SoundTherapy = () => {
           {/* Hidden Audio Element */}
           <audio
             ref={audioRef}
-            src={currentTrackData.url}
             preload="metadata"
+            crossOrigin="anonymous"
             onPlay={() => setIsPlaying(true)}
             onPause={() => setIsPlaying(false)}
           />

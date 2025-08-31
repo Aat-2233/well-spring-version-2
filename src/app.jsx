@@ -3,6 +3,9 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Phone } from 'lucide-react'
 
+// Context
+import { LanguageProvider } from './contexts/LanguageContext'
+
 // Components
 import Navbar from './components/ui/Navbar'
 
@@ -17,6 +20,12 @@ import Subscription from './pages/Subscription'
 import BreathingExercises from './pages/BreathingExercise'
 import Journal from './pages/Journal'
 import CommunitySupport from './pages/CommunitySupport'
+import ScreeningForms from './pages/ScreeningForms'
+import AppointmentBooking from './pages/AppointmentBooking'
+import ResourceHub from './pages/ResourceHub'
+import AdminDashboard from './pages/AdminDashboard'
+
+import GeminiTest from './components/GeminiTest'
 
 // Emergency Helpline Component
 const EmergencyHelpline = () => {
@@ -72,24 +81,32 @@ const EmergencyHelpline = () => {
 
 function App() {
   return (
-    <Router>
-      <div className="min-h-screen">
-        <Navbar />
-        <Routes>
-          <Route path="/" element={<Homepage />} />
-          <Route path="/chat" element={<Chat />} />
-          <Route path="/mood-tracker" element={<MoodTracker />} />
-          <Route path="/resources" element={<Resources />} />
-          <Route path="/sound-therapy" element={<SoundTherapy />} />
-          <Route path="/therapy-booking" element={<TherapyBooking />} />
-          <Route path="/subscription" element={<Subscription />} />
-          <Route path="/breathing-exercises" element={<BreathingExercises />} />
-          <Route path="/journal" element={<Journal />} />
-          <Route path="/community" element={<CommunitySupport />} />
-        </Routes>
-        <EmergencyHelpline />
-      </div>
-    </Router>
+    <LanguageProvider>
+      <Router>
+        <div className="min-h-screen">
+          <Navbar />
+          <Routes>
+            <Route path="/" element={<Homepage />} />
+            <Route path="/chat" element={<Chat />} />
+            <Route path="/mood-tracker" element={<MoodTracker />} />
+            <Route path="/resources" element={<Resources />} />
+            <Route path="/sound-therapy" element={<SoundTherapy />} />
+            <Route path="/therapy-booking" element={<TherapyBooking />} />
+            <Route path="/subscription" element={<Subscription />} />
+            <Route path="/breathing-exercises" element={<BreathingExercises />} />
+            <Route path="/journal" element={<Journal />} />
+            <Route path="/community" element={<CommunitySupport />} />
+            <Route path="/screening" element={<ScreeningForms />} />
+            <Route path="/appointment-booking" element={<AppointmentBooking />} />
+            <Route path="/resource-hub" element={<ResourceHub />} />
+            <Route path="/admin" element={<AdminDashboard />} />
+
+            <Route path="/test" element={<GeminiTest />} />
+          </Routes>
+          <EmergencyHelpline />
+        </div>
+      </Router>
+    </LanguageProvider>
   )
 }
 

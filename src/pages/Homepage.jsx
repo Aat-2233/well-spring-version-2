@@ -16,11 +16,18 @@ import {
   ArrowRight,
   Star,
   Shield,
-  Zap
+  Zap,
+  CheckCircle,
+  FileText,
+  TrendingUp,
+  Info,
+  AlertCircle
 } from 'lucide-react'
+import { useLanguage } from '../contexts/LanguageContext'
 
 const Homepage = () => {
   const [currentQuote, setCurrentQuote] = useState(0)
+  const { t } = useLanguage()
 
   const inspirationalQuotes = [
     "Your mental health is a priority. Your happiness is essential. Your self-care is a necessity.",
@@ -33,58 +40,58 @@ const Homepage = () => {
   const features = [
     {
       icon: Heart,
-      title: "Mood Tracking",
-      description: "Track your daily emotions with intuitive mood logging and visual insights",
+      title: t('homepage.features.moodTracker'),
+      description: t('homepage.features.moodTrackerDesc'),
       link: "/mood-tracker",
       color: "from-red-400 to-pink-500"
     },
     {
       icon: MessageCircle,
-      title: "AI Chat Support",
-      description: "Get instant support from our empathetic AI companion, available 24/7",
+      title: t('homepage.features.aiChat'),
+      description: t('homepage.features.aiChatDesc'),
       link: "/chat",
       color: "from-blue-400 to-cyan-500"
     },
     {
       icon: BookOpen,
-      title: "Personal Journal",
-      description: "Express your thoughts safely in a private, encrypted journaling space",
+      title: t('homepage.features.journal'),
+      description: t('homepage.features.journalDesc'),
       link: "/journal",
       color: "from-purple-400 to-indigo-500"
     },
     {
       icon: Music,
-      title: "Sound Therapy",
-      description: "Relax with curated playlists designed for meditation and stress relief",
+      title: t('homepage.features.soundTherapy'),
+      description: t('homepage.features.soundTherapyDesc'),
       link: "/sound-therapy",
       color: "from-green-400 to-teal-500"
     },
     {
       icon: Wind,
-      title: "Breathing Exercises",
-      description: "Practice guided breathing techniques to reduce anxiety and stress",
+      title: t('homepage.features.breathing'),
+      description: t('homepage.features.breathingDesc'),
       link: "/breathing-exercises",
       color: "from-cyan-400 to-blue-500"
     },
     {
       icon: Stethoscope,
-      title: "Therapy Booking",
-      description: "Connect with licensed mental health professionals for personalized care",
+      title: t('homepage.features.therapy'),
+      description: t('homepage.features.therapyDesc'),
       link: "/therapy-booking",
       color: "from-orange-400 to-red-500"
     },
     {
       icon: Users,
-      title: "Community Support",
-      description: "Join a supportive community of individuals on similar wellness journeys",
+      title: t('homepage.features.community'),
+      description: t('homepage.features.communityDesc'),
       link: "/community",
       color: "from-pink-400 to-purple-500"
     },
     {
       icon: BarChart3,
-      title: "Progress Analytics",
-      description: "Visualize your mental health journey with detailed progress insights",
-      link: "/mood-tracker",
+      title: t('homepage.features.screening'),
+      description: t('homepage.features.screeningDesc'),
+      link: "/screening",
       color: "from-indigo-400 to-blue-500"
     }
   ]
@@ -164,8 +171,7 @@ const Homepage = () => {
                 <span className="text-secondary-600">Companion</span>
               </h1>
               <p className="text-xl md:text-2xl text-secondary-600 max-w-3xl mx-auto">
-                A comprehensive platform designed to support your mental wellness journey with AI-powered tools, 
-                professional therapy, and a caring community.
+                {t('homepage.hero.subtitle')}
               </p>
             </motion.div>
 
@@ -176,11 +182,11 @@ const Homepage = () => {
               className="flex flex-col sm:flex-row gap-4 justify-center mb-12"
             >
               <Link to="/chat" className="btn-primary text-lg px-8 py-4">
-                Start Your Journey
+                {t('homepage.hero.getStarted')}
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
               <Link to="/mood-tracker" className="btn-secondary text-lg px-8 py-4">
-                Track Your Mood
+                {t('homepage.hero.learnMore')}
               </Link>
             </motion.div>
 
@@ -241,10 +247,10 @@ const Homepage = () => {
             className="text-center mb-16"
           >
             <h2 className="text-4xl lg:text-5xl font-display font-bold gradient-text mb-6">
-              Comprehensive Mental Wellness Tools
+              {t('homepage.hero.title')}
             </h2>
             <p className="text-xl text-secondary-600 max-w-3xl mx-auto">
-              Everything you need to support your mental health journey, from mood tracking to professional therapy
+              {t('homepage.hero.subtitle')}
             </p>
           </motion.div>
 
@@ -269,13 +275,151 @@ const Homepage = () => {
                     {feature.description}
                   </p>
                   <div className="mt-4 flex items-center text-primary-600 font-medium text-sm group-hover:translate-x-2 transition-transform duration-200">
-                    Learn More
+                    {t('homepage.hero.learnMore')}
                     <ArrowRight className="ml-1 h-4 w-4" />
                   </div>
                 </Link>
               </motion.div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Mental Health Screening Section */}
+      <section className="py-20 bg-gradient-to-r from-indigo-50 to-purple-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-4xl lg:text-5xl font-display font-bold gradient-text mb-6">
+              {t('homepage.screening.title')}
+            </h2>
+            <p className="text-xl text-secondary-600 max-w-3xl mx-auto">
+              {t('homepage.screening.subtitle')}
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+            {/* PHQ-9 Card */}
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6 }}
+              className="floating-card hover:shadow-xl transition-all duration-300"
+            >
+              <div className="flex items-start space-x-4">
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-xl flex items-center justify-center">
+                  <Brain className="w-8 h-8 text-white" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-2xl font-semibold text-secondary-800 mb-2">{t('homepage.screening.phq9')}</h3>
+                  <p className="text-secondary-600 mb-4">
+                    {t('homepage.screening.phq9Desc')}
+                  </p>
+                  <div className="space-y-2 mb-6">
+                    <div className="flex items-center space-x-2 text-sm text-secondary-600">
+                      <CheckCircle className="w-4 h-4 text-green-500" />
+                      <span>9 questions</span>
+                    </div>
+                    <div className="flex items-center space-x-2 text-sm text-secondary-600">
+                      <CheckCircle className="w-4 h-4 text-green-500" />
+                      <span>5-10 minutes</span>
+                    </div>
+                    <div className="flex items-center space-x-2 text-sm text-secondary-600">
+                      <CheckCircle className="w-4 h-4 text-green-500" />
+                      <span>Evidence-based</span>
+                    </div>
+                  </div>
+                  <Link to="/screening" className="btn-primary w-full flex items-center justify-center space-x-2">
+                    <FileText className="w-4 h-4" />
+                    <span>{t('homepage.screening.takeAssessment')}</span>
+                  </Link>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* GAD-7 Card */}
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6 }}
+              className="floating-card hover:shadow-xl transition-all duration-300"
+            >
+              <div className="flex items-start space-x-4">
+                <div className="w-16 h-16 bg-gradient-to-br from-purple-400 to-indigo-500 rounded-xl flex items-center justify-center">
+                  <TrendingUp className="w-8 h-8 text-white" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-2xl font-semibold text-secondary-800 mb-2">{t('homepage.screening.gad7')}</h3>
+                  <p className="text-secondary-600 mb-4">
+                    {t('homepage.screening.gad7Desc')}
+                  </p>
+                  <div className="space-y-2 mb-6">
+                    <div className="flex items-center space-x-2 text-sm text-secondary-600">
+                      <CheckCircle className="w-4 h-4 text-green-500" />
+                      <span>7 questions</span>
+                    </div>
+                    <div className="flex items-center space-x-2 text-sm text-secondary-600">
+                      <CheckCircle className="w-4 h-4 text-green-500" />
+                      <span>3-5 minutes</span>
+                    </div>
+                    <div className="flex items-center space-x-2 text-sm text-secondary-600">
+                      <CheckCircle className="w-4 h-4 text-green-500" />
+                      <span>Evidence-based</span>
+                    </div>
+                  </div>
+                  <Link to="/screening" className="btn-primary w-full flex items-center justify-center space-x-2">
+                    <FileText className="w-4 h-4" />
+                    <span>{t('homepage.screening.takeAssessment')}</span>
+                  </Link>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+
+          {/* Information Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="floating-card bg-gradient-to-r from-primary-25 to-accent-25"
+          >
+            <h3 className="text-2xl font-semibold text-primary-800 mb-6 text-center">
+              {t('homepage.screening.aboutAssessments')}
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="text-center">
+                <div className="w-12 h-12 bg-primary-500 rounded-xl flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle className="w-6 h-6 text-white" />
+                </div>
+                <h4 className="font-semibold text-primary-800 mb-2">Validated Tools</h4>
+                <p className="text-sm text-primary-700">
+                  {t('homepage.screening.aboutAssessmentsDesc')}
+                </p>
+              </div>
+              <div className="text-center">
+                <div className="w-12 h-12 bg-accent-500 rounded-xl flex items-center justify-center mx-auto mb-4">
+                  <Info className="w-6 h-6 text-white" />
+                </div>
+                <h4 className="font-semibold text-primary-800 mb-2">Screening Only</h4>
+                <p className="text-sm text-primary-700">
+                  These assessments are for screening purposes only and should not replace professional diagnosis or treatment.
+                </p>
+              </div>
+              <div className="text-center">
+                <div className="w-12 h-12 bg-secondary-500 rounded-xl flex items-center justify-center mx-auto mb-4">
+                  <AlertCircle className="w-6 h-6 text-white" />
+                </div>
+                <h4 className="font-semibold text-primary-800 mb-2">Get Help</h4>
+                <p className="text-sm text-primary-700">
+                  If you're experiencing severe symptoms or thoughts of self-harm, please contact a mental health professional immediately.
+                </p>
+              </div>
+            </div>
+          </motion.div>
         </div>
       </section>
 

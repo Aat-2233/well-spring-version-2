@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Plus, Search, Calendar, Edit3, Trash2, Save, X, Tag, Filter, BookOpen, Lock } from 'lucide-react'
 import { format, isToday, isYesterday, subDays } from 'date-fns'
+import { useLanguage } from '../contexts/LanguageContext'
 
 const Journal = () => {
+  const { t } = useLanguage()
   const [entries, setEntries] = useState([])
   const [isWriting, setIsWriting] = useState(false)
   const [currentEntry, setCurrentEntry] = useState({ title: '', content: '', tags: [] })
@@ -138,10 +140,10 @@ const Journal = () => {
           className="text-center py-8"
         >
           <h1 className="text-3xl lg:text-4xl font-display font-bold gradient-text mb-2">
-            Personal Journal
+            {t('journal.title')}
           </h1>
           <p className="text-secondary-600">
-            Your private space for reflection, gratitude, and personal growth
+            {t('journal.subtitle')}
           </p>
         </motion.div>
 
@@ -150,14 +152,14 @@ const Journal = () => {
           <div className="floating-card text-center py-4">
             <BookOpen className="w-6 h-6 text-primary-500 mx-auto mb-2" />
             <div className="text-2xl font-bold text-secondary-800">{entries.length}</div>
-            <div className="text-sm text-secondary-600">Total Entries</div>
+            <div className="text-sm text-secondary-600">{t('journal.totalEntries')}</div>
           </div>
           <div className="floating-card text-center py-4">
             <Edit3 className="w-6 h-6 text-accent-500 mx-auto mb-2" />
             <div className="text-2xl font-bold text-secondary-800">
               {entries.reduce((sum, entry) => sum + entry.wordCount, 0)}
             </div>
-            <div className="text-sm text-secondary-600">Words Written</div>
+            <div className="text-sm text-secondary-600">{t('journal.wordsWritten')}</div>
           </div>
           <div className="floating-card text-center py-4">
             <Calendar className="w-6 h-6 text-yellow-500 mx-auto mb-2" />
@@ -167,12 +169,12 @@ const Journal = () => {
                 return daysSince < 7
               }).length}
             </div>
-            <div className="text-sm text-secondary-600">This Week</div>
+            <div className="text-sm text-secondary-600">{t('journal.thisWeek')}</div>
           </div>
           <div className="floating-card text-center py-4">
             <Lock className="w-6 h-6 text-purple-500 mx-auto mb-2" />
             <div className="text-2xl font-bold text-secondary-800">100%</div>
-            <div className="text-sm text-secondary-600">Private</div>
+            <div className="text-sm text-secondary-600">{t('journal.private')}</div>
           </div>
         </div>
 
@@ -188,23 +190,23 @@ const Journal = () => {
                 <div className="text-center py-12">
                   <Edit3 className="w-16 h-16 text-primary-300 mx-auto mb-4" />
                   <h2 className="text-2xl font-semibold text-secondary-700 mb-4">
-                    Start Writing Today
+                    {t('journal.startWriting')}
                   </h2>
                   <p className="text-secondary-500 mb-6">
-                    Express your thoughts, track your progress, and reflect on your journey
+                    {t('journal.startWritingDesc')}
                   </p>
                   <button
                     onClick={() => setIsWriting(true)}
                     className="btn-primary flex items-center space-x-2"
                   >
                     <Plus className="w-5 h-5" />
-                    <span>New Entry</span>
+                    <span>{t('journal.newEntry')}</span>
                   </button>
                 </div>
 
                 {/* Journal Prompts */}
                 <div className="border-t border-secondary-100 pt-6">
-                  <h3 className="font-semibold text-secondary-800 mb-4">Need inspiration? Try these prompts:</h3>
+                  <h3 className="font-semibold text-secondary-800 mb-4">{t('journal.needInspiration')}</h3>
                   <div className="space-y-2">
                     {journalPrompts.slice(0, 4).map((prompt, index) => (
                       <button
@@ -229,7 +231,7 @@ const Journal = () => {
               >
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-xl font-semibold text-secondary-800">
-                    {editingId ? 'Edit Entry' : 'New Journal Entry'}
+                    {editingId ? t('journal.editEntry') : t('journal.newJournalEntry')}
                   </h2>
                   <button
                     onClick={() => {
@@ -248,7 +250,7 @@ const Journal = () => {
                   type="text"
                   value={currentEntry.title}
                   onChange={(e) => setCurrentEntry({ ...currentEntry, title: e.target.value })}
-                  placeholder="Entry title (optional)"
+                  placeholder={t('journal.entryTitlePlaceholder')}
                   className="w-full px-4 py-3 border border-secondary-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent mb-4"
                 />
 
@@ -256,7 +258,7 @@ const Journal = () => {
                 <textarea
                   value={currentEntry.content}
                   onChange={(e) => setCurrentEntry({ ...currentEntry, content: e.target.value })}
-                  placeholder="Start writing your thoughts..."
+                  placeholder={t('journal.contentPlaceholder')}
                   className="w-full px-4 py-3 border border-secondary-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
                   rows="12"
                 />
@@ -264,7 +266,7 @@ const Journal = () => {
                 {/* Tags Section */}
                 <div className="mt-4">
                   <label className="block text-sm font-medium text-secondary-700 mb-2">
-                    Tags
+                    {t('journal.tags')}
                   </label>
                   <div className="flex flex-wrap gap-2 mb-3">
                     {currentEntry.tags.map((tag, index) => (

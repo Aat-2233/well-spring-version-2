@@ -1,8 +1,10 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Star, MapPin, Clock, Video, MessageSquare, Phone, Calendar, CheckCircle, Award, Users, Heart, Shield } from 'lucide-react'
+import { useLanguage } from '../contexts/LanguageContext'
 
 const TherapyBooking = () => {
+  const { t } = useLanguage()
   const [selectedTherapist, setSelectedTherapist] = useState(null)
   const [selectedDate, setSelectedDate] = useState('')
   const [selectedTime, setSelectedTime] = useState('')
@@ -164,10 +166,10 @@ const TherapyBooking = () => {
           className="text-center py-8"
         >
           <h1 className="text-3xl lg:text-4xl font-display font-bold gradient-text mb-2">
-            Professional Therapy
+            {t('therapy.title')}
           </h1>
           <p className="text-secondary-600">
-            Connect with licensed mental health professionals for personalized care and support
+            {t('therapy.subtitle')}
           </p>
         </motion.div>
 
@@ -207,11 +209,11 @@ const TherapyBooking = () => {
               animate={{ opacity: 1, y: 0 }}
               className="floating-card mb-6"
             >
-              <h2 className="text-xl font-semibold text-secondary-800 mb-4">Find Your Perfect Therapist</h2>
+              <h2 className="text-xl font-semibold text-secondary-800 mb-4">{t('therapy.findTherapist')}</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-secondary-700 mb-2">
-                    Specialty
+                    {t('therapy.specialty')}
                   </label>
                   <select
                     value={filterSpecialty}
@@ -227,7 +229,7 @@ const TherapyBooking = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-secondary-700 mb-2">
-                    Language
+                    {t('therapy.language')}
                   </label>
                   <select
                     value={filterLanguage}
